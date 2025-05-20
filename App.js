@@ -6,6 +6,9 @@ import {
   TextInput,
   SafeAreaView,
   TouchableOpacity,
+  ImageBackground,
+  Keyboard,
+  TouchableWithoutFeedback,
 } from "react-native";
 
 export default function App() {
@@ -13,6 +16,7 @@ export default function App() {
   const [message, setMessage] = useState("");
   const [target, setTarget] = useState(Math.floor(Math.random() * 100) + 1);
   const [numberOfGuesses, setNumberOfGuesses] = useState(0);
+  const [highScore, setHighScore] = useState(0);
 
   function handleGuess() {
     const number = Number(guess);
@@ -27,9 +31,15 @@ export default function App() {
       setNumberOfGuesses((prev) => prev + 1);
     } else if (number === target) {
       const updatedGuesses = numberOfGuesses + 1;
+
       setMessage(
         `Nice! ${number} was correct!\nIt took ${updatedGuesses} guesses.`
       );
+
+      if (highScore === 0 || highScore > updatedGuesses) {
+        setHighScore(updatedGuesses);
+      }
+
       setTarget(Math.floor(Math.random() * 100) + 1);
       setGuess("");
       setNumberOfGuesses(0);
@@ -42,21 +52,34 @@ export default function App() {
         <Text style={styles.headerText}>GuessingGame</Text>
       </View>
 
-      <View style={styles.container}>
-        <Text style={styles.text}>Guess a number between 1 and 100</Text>
-        <View style={styles.row}>
-          <TextInput
-            style={styles.input}
-            keyboardType="number-pad"
-            value={guess}
-            onChangeText={setGuess}
-          />
-          <TouchableOpacity style={styles.button} onPress={handleGuess}>
-            <Text style={styles.buttonText}>Guess</Text>
-          </TouchableOpacity>
-        </View>
-        <Text style={styles.text}>{message}</Text>
-      </View>
+      <ImageBackground
+        source={require("./assets/guessing-bg.png")}
+        style={styles.background}
+        resizeMode="cover"
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={styles.container}>
+            <Text style={styles.highscore}>
+              Highscore: {highScore != 0 ? highScore : ""}
+            </Text>
+            <Text style={styles.text}>Guess a number from 1 to 100</Text>
+
+            <View style={styles.row}>
+              <TextInput
+                style={styles.input}
+                keyboardType="number-pad"
+                value={guess}
+                onChangeText={setGuess}
+              />
+              <TouchableOpacity style={styles.button} onPress={handleGuess}>
+                <Text style={styles.buttonText}>Guess</Text>
+              </TouchableOpacity>
+            </View>
+
+            <Text style={styles.text}>{message}</Text>
+          </View>
+        </TouchableWithoutFeedback>
+      </ImageBackground>
     </SafeAreaView>
   );
 }
@@ -64,9 +87,9 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
+    padding: 20,
     justifyContent: "center",
+    alignItems: "center",
   },
   input: {
     height: 45,
@@ -80,7 +103,17 @@ const styles = StyleSheet.create({
     color: "#333",
     fontWeight: "600",
   },
-
+  background: {
+    flex: 1,
+  },
+  highscore: {
+    position: "absolute",
+    top: 100,
+    alignSelf: "center",
+    fontSize: 30,
+    fontWeight: "700",
+    color: "rgb(70, 11, 75)",
+  },
   row: {
     flexDirection: "row",
     alignItems: "center",
@@ -90,10 +123,12 @@ const styles = StyleSheet.create({
     fontSize: 22,
     marginBottom: 30,
     textAlign: "center",
+    color: "rgb(70, 11, 75)",
+    fontWeight: "600",
   },
   header: {
     width: "100%",
-    backgroundColor: "#2471a3",
+    backgroundColor: "#1d4ed8",
     alignItems: "center",
     marginBottom: 5,
   },
@@ -104,10 +139,10 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
-    backgroundColor: "#2471a3",
+    backgroundColor: "#1d4ed8",
   },
   button: {
-    backgroundColor: "#2471a3",
+    backgroundColor: "#1d4ed8",
     paddingVertical: 12,
     paddingHorizontal: 12,
     borderRadius: 8,
